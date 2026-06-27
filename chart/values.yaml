@@ -89,6 +89,12 @@ relay:
   enabled: false
   replicaCount: 1
 
+# catalog-consumer: decrement stock on order.created. Runs as its own Deployment.
+consumers:
+  - name: catalog-consumer
+    command: ["python", "manage.py", "catalog_consumer"]
+    replicas: 1
+
 podSecurityContext:
   runAsNonRoot: true
   runAsUser: 10001

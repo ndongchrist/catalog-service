@@ -52,3 +52,32 @@ class OutboxEvent(models.Model):
 
 
 # --- Add your domain models below -------------------------------------------
+
+
+class ProcessedEvent(models.Model):
+    """Idempotency ledger for the consumer. At-least-once delivery means the same
+    event can arrive twice; we record each handled event_id and skip duplicates."""
+
+    event_id = models.CharField(max_length=64, primary_key=True)
+    topic = models.CharField(max_length=255)
+    processed_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return f"{self.topic}:{self.event_id}"
+
+
+class Product(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    sku = models.CharField(max_length=64, unique=True)
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, default="")
+    price = models.DecimalField(max_digits=12, decimal_places=2)
+    stock = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self) -> str:
+        return f"{self.sku} ({self.stock} in stock)"
